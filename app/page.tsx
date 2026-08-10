@@ -374,9 +374,10 @@ export default function App() {
     dragSeekingRef.current = false;
   };
 
-  const handleSeekInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSeekInput = (e: React.SyntheticEvent<HTMLInputElement>) => {
     dragSeekingRef.current = true;
-    const pct = parseFloat(e.target.value);
+    const target = e.target as HTMLInputElement;
+    const pct = parseFloat(target.value);
     const targetTime = (pct / 100) * duration;
     setCurrentTime(targetTime);
   };
@@ -522,7 +523,6 @@ export default function App() {
     });
   }, [currentTrack, isPlaying]);
 
-
   useEffect(() => {
     if ("mediaSession" in navigator && duration > 0) {
       try {
@@ -531,8 +531,7 @@ export default function App() {
           playbackRate: 1,
           position: Math.min(currentTime, duration),
         });
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }, [currentTime, duration]);
 
@@ -605,7 +604,7 @@ export default function App() {
             max="100"
             value={progressPct}
             step="0.05"
-            onInput={handleSeekInput}
+            onInput={(e) => handleSeekInput(e as unknown as React.ChangeEvent<HTMLInputElement>)}
             onChange={handleSeekChange}
           />
           <div
