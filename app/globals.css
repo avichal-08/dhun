@@ -164,28 +164,38 @@ body {
     gap: 12px;
 }
 
+/* ==========================================================================
+   Header Link (Creator Badge)
+   ========================================================================== */
 .header-link {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.82rem;
+    gap: 8px; /* Slightly wider gap so the X logo doesn't feel cramped */
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #ffffff; /* Pure white text to match the clock */
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    padding: 8px 16px;
+
+    /* Match the clock's dark glass background EXACTLY */
+    background: rgba(15, 15, 20, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    /* Match the clock's heavy blur */
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+
     transition: all var(--transition-speed) ease;
 }
 
 .header-link:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.18);
-    transform: translateY(-1px);
+    /* Slightly lighter and more opaque when hovered */
+    background: rgba(30, 30, 40, 0.85);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px); /* Gives it a nice "lift" effect */
 }
 
 .playlist-link {
