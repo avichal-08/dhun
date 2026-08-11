@@ -320,6 +320,7 @@ export default function App() {
         rel: 0,
         modestbranding: 1,
         iv_load_policy: 3,
+        playsinline: 1,
       },
       events: {
         onReady: (e: any) => {
