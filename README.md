@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dhun
+
+**Dhun** is a sleek, glassmorphic music player built to seamlessly stream 2000s Bollywood classics and top-tier Desi Hip Hop (DHH). Powered by the YouTube IFrame API, it provides a native audio player experience directly in the browser without the heavy lifting of hosting audio files.
+
+---
+
+## Deployment
+
+**Dhun is proudly deployed on [DPLOY](https://dploy.avichal.me/)** — my own custom-built deployment platform.
+
+---
+
+## Features
+
+- **Dual-Genre Playlists:** Instantly switch between Bollywood and DHH tracks using a smooth, iPhone-style segmented control tab.
+- **Dynamic UI & Backgrounds:** The background poster and mobile artwork automatically transition to match the vibe of your selected genre.
+- **Glassmorphic Design:** A highly responsive, frosted-glass player dock and interactive playlist drawer that looks stunning on desktop, tablet, and mobile.
+- **Advanced Playback Controls:** Fully custom progress slider, volume controls, mute toggle, shuffle, and loop functionality.
+- **Lock Screen Support:** Integrated with the **Media Session API** so you can play, pause, and skip tracks directly from your phone's lock screen or notification center.
+- **Real-Time Search:** Instantly filter through playlists by song title or artist name.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router, Turbopack)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS & Custom Vanilla CSS Variables
+- **Audio Engine:** YouTube IFrame Player API
+- **Package Manager:** Bun
+
+---
 
 ## Getting Started
 
-First, run the development server:
+To run Dhun locally on your machine, follow these steps.
+
+### 1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/avichal-08/dhun.git
+cd dhun
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This project uses **Bun**, but you can also use npm, pnpm, or yarn.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+bun install
+```
 
-## Learn More
+### 3. Start the development server
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Open the app
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) in your browser to start listening.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Mobile Background Play Note
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Because Dhun relies on the YouTube API, iOS Safari and Android Chrome may aggressively pause playback when the screen turns off.
+
+**Workaround:** Request the **Desktop Site** in your mobile browser to bypass strict mobile background-play restrictions and keep the music flowing.
+
+---
