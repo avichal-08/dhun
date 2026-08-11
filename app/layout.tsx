@@ -19,8 +19,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://dhun.dploy.avichal.me"),
 
-  title: "Dhun | 2000s Bollywood Bangers",
-  description: "Your ultimate retro Bollywood music player. Vibe to the best tracks from 2000-2015.",
+  title: "Dhun | Bollywood Bangers & DHH",
+  description:
+    "Your ultimate dual-genre music player. Vibe to retro 2000s Bollywood classics and top-tier Desi Hip Hop (DHH) seamlessly.",
   icons: {
     icon: "/dhun-logo.png",
     apple: "/apple-icon.png",
