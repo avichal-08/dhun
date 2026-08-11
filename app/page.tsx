@@ -120,6 +120,50 @@ const PLAYLISTS = {
       thumbnail: "https://img.youtube.com/vi/3DTGr6JeuUg/hqdefault.jpg",
     },
   ],
+  dhh: [
+    {
+      id: "RlMrQvSMnhQ",
+      title: "Raat Ki Rani",
+      artist: "Seedhe Maut",
+      thumbnail: "https://img.youtube.com/vi/RlMrQvSMnhQ/hqdefault.jpg",
+    },
+    {
+      id: "4aieFcYTLok",
+      title: "Bure Din",
+      artist: "Seedhe Maut",
+      thumbnail: "https://img.youtube.com/vi/4aieFcYTLok/hqdefault.jpg",
+    },
+    {
+      id: "6Zv9mSiZGBU",
+      title: "No Cap",
+      artist: "KRSNA",
+      thumbnail: "https://img.youtube.com/vi/6Zv9mSiZGBU/hqdefault.jpg",
+    },
+    {
+      id: "9mH-57TvCGo",
+      title: "Luka Chippi",
+      artist: "Seedhe Maut",
+      thumbnail: "https://img.youtube.com/vi/9mH-57TvCGo/hqdefault.jpg",
+    },
+    {
+      id: "Ky-QenzQD6U",
+      title: "Swah!",
+      artist: "Seedhe Maut",
+      thumbnail: "https://img.youtube.com/vi/Ky-QenzQD6U/hqdefault.jpg",
+    },
+    {
+      id: "egx5ku9_NKE",
+      title: "Lil Bunty",
+      artist: "KRSNA",
+      thumbnail: "https://img.youtube.com/vi/egx5ku9_NKE/hqdefault.jpg",
+    },
+    {
+      id: "nUAra7tddLY",
+      title: "11K",
+      artist: "Seedhe Maut",
+      thumbnail: "https://img.youtube.com/vi/nUAra7tddLY/hqdefault.jpg",
+    },
+  ],
 };
 
 type PlaylistCategory = keyof typeof PLAYLISTS;
@@ -202,7 +246,7 @@ export default function App() {
   const [timeString, setTimeString] = useState("00:00:00 AM");
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // <-- NEW SEARCH STATE
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [isLoop, setIsLoop] = useState(false);
   const isLoopRef = useRef(false);
@@ -217,14 +261,20 @@ export default function App() {
   const dragSeekingRef = useRef(false);
   const activeTrackRef = useRef<HTMLLIElement | null>(null);
 
+  const categoryRef = useRef<PlaylistCategory>(currentCategory);
+  const isShuffleRef = useRef(isShuffle);
+
+  useEffect(() => {
+    isLoopRef.current = isLoop;
+    categoryRef.current = currentCategory;
+    isShuffleRef.current = isShuffle;
+  }, [isLoop, currentCategory, isShuffle]);
+
   const currentTracks = PLAYLISTS[currentCategory];
   const safeIndex =
     currentTrackIndex < currentTracks.length ? currentTrackIndex : 0;
   const currentTrack = currentTracks[safeIndex];
 
-  // ==========================================================================
-  // Filter Tracks Logic
-  // ==========================================================================
   const filteredTracks = currentTracks.filter((track) => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     return (
@@ -252,11 +302,13 @@ export default function App() {
 
   const loadTrack = (index: number) => {
     setCurrentTime(0);
+    const tracks = PLAYLISTS[categoryRef.current];
     if (
       playerRef.current &&
-      typeof playerRef.current.loadVideoById === "function"
+      typeof playerRef.current.loadVideoById === "function" &&
+      tracks[index]
     ) {
-      playerRef.current.loadVideoById(currentTracks[index].id);
+      playerRef.current.loadVideoById(tracks[index].id);
       playerRef.current.playVideo();
     }
   };
@@ -265,13 +317,14 @@ export default function App() {
     if (!playerRef.current) return;
     setCurrentTrackIndex((prev) => {
       let nextIdx;
+      const tracks = PLAYLISTS[categoryRef.current];
 
-      if (isShuffle && currentTracks.length > 1) {
+      if (isShuffleRef.current && tracks.length > 1) {
         do {
-          nextIdx = Math.floor(Math.random() * currentTracks.length);
+          nextIdx = Math.floor(Math.random() * tracks.length);
         } while (nextIdx === prev);
       } else {
-        nextIdx = (prev + 1) % currentTracks.length;
+        nextIdx = (prev + 1) % tracks.length;
       }
 
       loadTrack(nextIdx);
@@ -282,7 +335,8 @@ export default function App() {
   const handlePrev = () => {
     if (!playerRef.current) return;
     setCurrentTrackIndex((prev) => {
-      const prevIdx = (prev - 1 + currentTracks.length) % currentTracks.length;
+      const tracks = PLAYLISTS[categoryRef.current];
+      const prevIdx = (prev - 1 + tracks.length) % tracks.length;
       loadTrack(prevIdx);
       return prevIdx;
     });
@@ -332,7 +386,7 @@ export default function App() {
         rel: 0,
         modestbranding: 1,
         iv_load_policy: 3,
-        playsinline: 1, // Fix for mobile lock screen
+        playsinline: 1,
       },
       events: {
         onReady: (e: any) => {
@@ -348,12 +402,11 @@ export default function App() {
     });
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCategory = e.target.value as PlaylistCategory;
+  const handleCategoryChange = (newCategory: PlaylistCategory) => {
     setCurrentCategory(newCategory);
     setCurrentTrackIndex(0);
     setCurrentTime(0);
-    setSearchQuery(""); // Clear search when changing playlists
+    setSearchQuery("");
 
     if (
       playerRef.current &&
@@ -376,7 +429,6 @@ export default function App() {
   const handleTrackSelect = (originalIndex: number) => {
     setCurrentTrackIndex(originalIndex);
     loadTrack(originalIndex);
-    // Optional: Only close the drawer on mobile to allow continuous desktop browsing
     if (window.innerWidth <= 768) {
       setIsDrawerOpen(false);
     }
@@ -594,34 +646,42 @@ export default function App() {
 
   return (
     <>
-      <div className="bg-container">
+      <div
+        className="bg-container"
+        style={
+          {
+            "--bg-image": `url(${currentCategory === "dhh" ? "/dhh-poster.png" : "/poster.png"})`,
+            "--bg-image-mobile": `url(${currentCategory === "dhh" ? "/dhh-mobile-poster.png" : "/mobile-poster.png"})`,
+          } as React.CSSProperties
+        }
+      >
         <div className="bg-overlay"></div>
         <div className="grid-overlay"></div>
       </div>
 
       <header className="app-header">
-              <div className="header-left">
-                <div className="digital-clock">{timeString}</div>
-              </div>
+        <div className="header-left">
+          <div className="digital-clock">{timeString}</div>
+        </div>
 
-              <div className="header-right">
-                <a
-                  href="https://x.com/Avichal_08"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="header-link"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    style={{ width: "13px", height: "13px" }}
-                  >
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                  <span>Built by Avichal</span>
-                </a>
-              </div>
-            </header>
+        <div className="header-right">
+          <a
+            href="https://x.com/Avichal_08"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="header-link"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              style={{ width: "13px", height: "13px" }}
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            <span>Built by Avichal</span>
+          </a>
+        </div>
+      </header>
 
       <div id="yt-player-container">
         <div id="yt-player-iframe"></div>
@@ -833,10 +893,47 @@ export default function App() {
 
       <div className={`playlist-drawer ${isDrawerOpen ? "open" : ""}`}>
         <div className="drawer-header">
-          <h3>
-            {currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}{" "}
-            Tracks
-          </h3>
+          <div
+            style={{
+              display: "flex",
+              background: "rgba(0, 0, 0, 0.4)",
+              borderRadius: "24px",
+              padding: "4px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = currentCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  style={{
+                    background: isActive
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "transparent",
+                    color: isActive ? "#fff" : "rgba(255, 255, 255, 0.5)",
+                    border: "1px solid",
+                    borderColor: isActive
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "transparent",
+                    borderRadius: "20px",
+                    padding: "6px 18px",
+                    fontSize: "0.8rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    transition: "all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                    boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
+                  }}
+                >
+                  {cat === "dhh" ? "DHH" : cat}
+                </button>
+              );
+            })}
+          </div>
+
           <button
             className="close-drawer"
             onClick={() => setIsDrawerOpen(false)}
@@ -854,7 +951,6 @@ export default function App() {
         </div>
 
         <div className="drawer-body">
-          {/* SEARCH BAR UI */}
           <div style={{ marginBottom: "16px", padding: "0 4px" }}>
             <div style={{ position: "relative" }}>
               <svg
@@ -898,9 +994,8 @@ export default function App() {
           <ul className="playlist-tracks">
             {filteredTracks.length > 0 ? (
               filteredTracks.map((track) => {
-                // Find original index so clicking plays the correct song!
                 const originalIdx = currentTracks.findIndex(
-                  (t) => t.id === track.id
+                  (t) => t.id === track.id,
                 );
 
                 return (
