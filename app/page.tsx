@@ -202,6 +202,7 @@ export default function App() {
   const [timeString, setTimeString] = useState("00:00:00 AM");
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // <-- NEW SEARCH STATE
 
   const [isLoop, setIsLoop] = useState(false);
   const isLoopRef = useRef(false);
@@ -220,6 +221,17 @@ export default function App() {
   const safeIndex =
     currentTrackIndex < currentTracks.length ? currentTrackIndex : 0;
   const currentTrack = currentTracks[safeIndex];
+
+  // ==========================================================================
+  // Filter Tracks Logic
+  // ==========================================================================
+  const filteredTracks = currentTracks.filter((track) => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return (
+      track.title.toLowerCase().includes(lowerCaseQuery) ||
+      track.artist.toLowerCase().includes(lowerCaseQuery)
+    );
+  });
 
   const stopProgressLoop = () => {
     if (progressTimerRef.current) {
@@ -320,7 +332,7 @@ export default function App() {
         rel: 0,
         modestbranding: 1,
         iv_load_policy: 3,
-        playsinline: 1,
+        playsinline: 1, // Fix for mobile lock screen
       },
       events: {
         onReady: (e: any) => {
@@ -341,6 +353,7 @@ export default function App() {
     setCurrentCategory(newCategory);
     setCurrentTrackIndex(0);
     setCurrentTime(0);
+    setSearchQuery(""); // Clear search when changing playlists
 
     if (
       playerRef.current &&
@@ -360,10 +373,13 @@ export default function App() {
     }
   };
 
-  const handleTrackSelect = (index: number) => {
-    setCurrentTrackIndex(index);
-    loadTrack(index);
-    setIsDrawerOpen(false);
+  const handleTrackSelect = (originalIndex: number) => {
+    setCurrentTrackIndex(originalIndex);
+    loadTrack(originalIndex);
+    // Optional: Only close the drawer on mobile to allow continuous desktop browsing
+    if (window.innerWidth <= 768) {
+      setIsDrawerOpen(false);
+    }
   };
 
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -566,7 +582,7 @@ export default function App() {
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   useEffect(() => {
-    if (isDrawerOpen && activeTrackRef.current) {
+    if (isDrawerOpen && activeTrackRef.current && searchQuery === "") {
       setTimeout(() => {
         activeTrackRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -574,7 +590,7 @@ export default function App() {
         });
       }, 50);
     }
-  }, [isDrawerOpen, safeIndex]);
+  }, [isDrawerOpen, safeIndex, searchQuery]);
 
   return (
     <>
@@ -605,7 +621,11 @@ export default function App() {
             max="100"
             value={progressPct}
             step="0.05"
-            onInput={(e) => handleSeekInput(e as unknown as React.ChangeEvent<HTMLInputElement>)}
+            onInput={(e) =>
+              handleSeekInput(
+                e as unknown as React.ChangeEvent<HTMLInputElement>,
+              )
+            }
             onChange={handleSeekChange}
           />
           <div
@@ -814,35 +834,98 @@ export default function App() {
             </svg>
           </button>
         </div>
-        <div className="drawer-body">
-          <ul className="playlist-tracks">
-            {currentTracks.map((track, idx) => (
-              <li
-                key={track.id + idx}
-                ref={idx === safeIndex ? activeTrackRef : null}
-                className={`track-item ${idx === safeIndex ? "active" : ""}`}
-                onClick={() => handleTrackSelect(idx)}
-              >
-                <div className="track-item-left">
-                  <span className="track-index">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                  <div className="track-details">
-                    <span className="track-title">{track.title}</span>
-                    <span className="track-artist">{track.artist}</span>
-                  </div>
-                </div>
 
-                {idx === safeIndex && (
-                  <div
-                    className="track-item-right"
-                    style={{ marginRight: "4px" }}
+        <div className="drawer-body">
+          {/* SEARCH BAR UI */}
+          <div style={{ marginBottom: "16px", padding: "0 4px" }}>
+            <div style={{ position: "relative" }}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="rgba(255,255,255,0.4)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  position: "absolute",
+                  left: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: "16px",
+                  height: "16px",
+                }}
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search song or artist..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px 10px 36px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "rgba(0, 0, 0, 0.2)",
+                  color: "#fff",
+                  outline: "none",
+                  fontSize: "0.85rem",
+                }}
+              />
+            </div>
+          </div>
+
+          <ul className="playlist-tracks">
+            {filteredTracks.length > 0 ? (
+              filteredTracks.map((track) => {
+                // Find original index so clicking plays the correct song!
+                const originalIdx = currentTracks.findIndex(
+                  (t) => t.id === track.id
+                );
+
+                return (
+                  <li
+                    key={track.id}
+                    ref={originalIdx === safeIndex ? activeTrackRef : null}
+                    className={`track-item ${originalIdx === safeIndex ? "active" : ""}`}
+                    onClick={() => handleTrackSelect(originalIdx)}
                   >
-                    <RetroEQ isPlaying={isPlaying} compact={true} />
-                  </div>
-                )}
-              </li>
-            ))}
+                    <div className="track-item-left">
+                      <span className="track-index">
+                        {String(originalIdx + 1).padStart(2, "0")}
+                      </span>
+                      <div className="track-details">
+                        <span className="track-title">{track.title}</span>
+                        <span className="track-artist">{track.artist}</span>
+                      </div>
+                    </div>
+
+                    {originalIdx === safeIndex && (
+                      <div
+                        className="track-item-right"
+                        style={{ marginRight: "4px" }}
+                      >
+                        <RetroEQ isPlaying={isPlaying} compact={true} />
+                      </div>
+                    )}
+                  </li>
+                );
+              })
+            ) : (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                  color: "rgba(255,255,255,0.4)",
+                  fontSize: "0.85rem",
+                  marginTop: "10px",
+                }}
+              >
+                No tracks found matching "{searchQuery}"
+              </div>
+            )}
           </ul>
         </div>
       </div>
