@@ -17,6 +17,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dhun.dploy.avichal.me"),
+
   title: "Dhun | 2000s Bollywood Bangers",
   description: "Your ultimate retro Bollywood music player. Vibe to the best tracks from 2000-2015.",
   icons: {
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Dhun | Bollywood Bangers",
     description: "Your ultimate retro Bollywood music player.",
-    images: ["open-graph.png"],
+    images: ["/open-graph.png"],
   },
 };
 
