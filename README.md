@@ -4,12 +4,6 @@
 
 ---
 
-## Deployment
-
-**Dhun is proudly deployed on [DPLOY](https://dploy.avichal.me/)** — my own custom-built deployment platform.
-
----
-
 ## Features
 
 - **Dual-Genre Playlists:** Instantly switch between Bollywood and DHH tracks using a smooth, iPhone-style segmented control tab.
@@ -67,5 +61,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to start lis
 Because Dhun relies on the YouTube API, iOS Safari and Android Chrome may aggressively pause playback when the screen turns off.
 
 **Workaround:** Request the **Desktop Site** in your mobile browser to bypass strict mobile background-play restrictions and keep the music flowing.
+
+---
+
+## Deployment
+
+**Dhun is proudly deployed on [DPLOY](https://dploy.avichal.me/)** — my own custom-built deployment platform.
 
 ---
